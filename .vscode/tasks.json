@@ -1,0 +1,40 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "JADE: Compile",
+      "type": "process",
+      "command": "C:\\Users\\Asus\\AppData\\Local\\Programs\\Apache Ant\\apache-ant-1.10.18\\bin\\ant.bat",
+      "args": ["compile"],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "JAVA_HOME": "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.12.101-hotspot"
+        }
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": ["$javac"]
+    },
+    {
+      "label": "JADE: Run",
+      "type": "process",
+      "command": "C:\\Users\\Asus\\AppData\\Local\\Programs\\Apache Ant\\apache-ant-1.10.18\\bin\\ant.bat",
+      "args": ["run"],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "JAVA_HOME": "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.12.101-hotspot"
+        }
+      },
+      "dependsOn": "JADE: Compile",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    }
+  ]
+}
