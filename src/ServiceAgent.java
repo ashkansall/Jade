@@ -1,3 +1,5 @@
+// run command : .\run-jade.cmd
+
 package jadelab1;
 
 import jade.core.*;
@@ -13,36 +15,46 @@ public class ServiceAgent extends Agent {
 		// services registration at DF
 		DFAgentDescription dfad = new DFAgentDescription();
 		dfad.setName(getAID());
-		// service no 1
-		ServiceDescription sd1 = new ServiceDescription();
-		sd1.setType("answers");
-		sd1.setName("wordnet");
-		// service no 2
-		ServiceDescription sd2 = new ServiceDescription();
-		sd2.setType("answers");
-		sd2.setName("dictionary");
 
-		// EX1:
-		ServiceDescription sd3 = new ServiceDescription();
-		sd3.setType("answers");
-		sd3.setName("italian");
+		// FOR EXCERSISE NUMBER 3
 
-		// add them all
-		dfad.addServices(sd1);
-		dfad.addServices(sd2);
-		dfad.addServices(sd3);
+		// // service no 1
+		// ServiceDescription sd1 = new ServiceDescription();
+		// sd1.setType("answers");
+		// sd1.setName("wordnet");
+		// // service no 2
+		// ServiceDescription sd2 = new ServiceDescription();
+		// sd2.setType("answers");
+		// sd2.setName("dictionary");
+
+		// // EX1:
+		// ServiceDescription sd3 = new ServiceDescription();
+		// sd3.setType("answers");
+		// sd3.setName("italian");
+
+		// // add them all
+		// dfad.addServices(sd1);
+		// dfad.addServices(sd2);
+		// dfad.addServices(sd3);
+
+		// One generic dictionary service
+		ServiceDescription sd = new ServiceDescription();
+		sd.setType("answers");
+		sd.setName("any-dictionary");
+
+		dfad.addServices(sd);
+
 		try {
 			DFService.register(this, dfad);
 		} catch (FIPAException ex) {
 			ex.printStackTrace();
 		}
 
-		addBehaviour(new WordnetCyclicBehaviour(this));
-		addBehaviour(new DictionaryCyclicBehaviour(this));
+		// addBehaviour(new WordnetCyclicBehaviour(this));
+		// addBehaviour(new DictionaryCyclicBehaviour(this));
+		// addBehaviour(new ItalianCyclicBehaviour(this));
+		addBehaviour(new AnyDictionaryBehaviour(this));
 
-		// EX1: add the italian behaviour
-		addBehaviour(new ItalianCyclicBehaviour(this));
-		// doDelete();
 	}
 
 	protected void takeDown() {
@@ -89,82 +101,119 @@ public class ServiceAgent extends Agent {
 	}
 }
 
-class WordnetCyclicBehaviour extends CyclicBehaviour {
+// class WordnetCyclicBehaviour extends CyclicBehaviour {
+// ServiceAgent agent;
+
+// public WordnetCyclicBehaviour(ServiceAgent agent) {
+// this.agent = agent;
+// }
+
+// public void action() {
+// MessageTemplate template = MessageTemplate.MatchOntology("wordnet");
+// ACLMessage message = agent.receive(template);
+// if (message == null) {
+// block();
+// } else {
+// // process the incoming message
+// String content = message.getContent();
+// ACLMessage reply = message.createReply();
+// reply.setPerformative(ACLMessage.INFORM);
+// String response = "";
+// try {
+// response = agent.makeRequest("wn", content);
+// } catch (NumberFormatException ex) {
+// response = ex.getMessage();
+// }
+// reply.setContent(response);
+// agent.send(reply);
+// }
+// }
+// }
+
+// class DictionaryCyclicBehaviour extends CyclicBehaviour {
+// ServiceAgent agent;
+
+// public DictionaryCyclicBehaviour(ServiceAgent agent) {
+// this.agent = agent;
+// }
+
+// public void action() {
+// MessageTemplate template = MessageTemplate.MatchOntology("dictionary");
+// ACLMessage message = agent.receive(template);
+// if (message == null) {
+// block();
+// } else {
+// // process the incoming message
+// String content = message.getContent();
+// ACLMessage reply = message.createReply();
+// reply.setPerformative(ACLMessage.INFORM);
+// String response = "";
+// try {
+// response = agent.makeRequest("english", content);
+// } catch (NumberFormatException ex) {
+// response = ex.getMessage();
+// }
+// reply.setContent(response);
+// agent.send(reply);
+// }
+// }
+// }
+
+// // ex1 :
+
+// class ItalianCyclicBehaviour extends CyclicBehaviour {
+
+// ServiceAgent agent;
+
+// public ItalianCyclicBehaviour(ServiceAgent agent) {
+// this.agent = agent;
+// }
+
+// public void action() {
+// MessageTemplate template = MessageTemplate.MatchOntology("italian");
+
+// ACLMessage message = agent.receive(template);
+
+// if (message == null) {
+// block();
+// } else {
+// String content = message.getContent();
+
+// ACLMessage reply = message.createReply();
+// reply.setPerformative(ACLMessage.INFORM);
+
+// String response = "";
+
+// try {
+// response = agent.makeRequest("fd-eng-ita", content);
+// } catch (NumberFormatException ex) {
+// response = ex.getMessage();
+// }
+
+// reply.setContent(response);
+// agent.send(reply);
+// }
+// }
+// }
+
+// for ex3 we dont need 3 different behaviours, we can have one behaviour that
+// can handle all the requests
+
+class AnyDictionaryBehaviour extends CyclicBehaviour {
 	ServiceAgent agent;
 
-	public WordnetCyclicBehaviour(ServiceAgent agent) {
+	public AnyDictionaryBehaviour(ServiceAgent agent) {
 		this.agent = agent;
 	}
 
 	public void action() {
-		MessageTemplate template = MessageTemplate.MatchOntology("wordnet");
-		ACLMessage message = agent.receive(template);
-		if (message == null) {
-			block();
-		} else {
-			// process the incoming message
-			String content = message.getContent();
-			ACLMessage reply = message.createReply();
-			reply.setPerformative(ACLMessage.INFORM);
-			String response = "";
-			try {
-				response = agent.makeRequest("wn", content);
-			} catch (NumberFormatException ex) {
-				response = ex.getMessage();
-			}
-			reply.setContent(response);
-			agent.send(reply);
-		}
-	}
-}
-
-class DictionaryCyclicBehaviour extends CyclicBehaviour {
-	ServiceAgent agent;
-
-	public DictionaryCyclicBehaviour(ServiceAgent agent) {
-		this.agent = agent;
-	}
-
-	public void action() {
-		MessageTemplate template = MessageTemplate.MatchOntology("dictionary");
-		ACLMessage message = agent.receive(template);
-		if (message == null) {
-			block();
-		} else {
-			// process the incoming message
-			String content = message.getContent();
-			ACLMessage reply = message.createReply();
-			reply.setPerformative(ACLMessage.INFORM);
-			String response = "";
-			try {
-				response = agent.makeRequest("english", content);
-			} catch (NumberFormatException ex) {
-				response = ex.getMessage();
-			}
-			reply.setContent(response);
-			agent.send(reply);
-		}
-	}
-}
-
-// ex1 :
-
-class ItalianCyclicBehaviour extends CyclicBehaviour {
-	ServiceAgent agent;
-
-	public ItalianCyclicBehaviour(ServiceAgent agent) {
-		this.agent = agent;
-	}
-
-	public void action() {
-		MessageTemplate template = MessageTemplate.MatchOntology("italian");
-
-		ACLMessage message = agent.receive(template);
+		ACLMessage message = agent.receive();
 
 		if (message == null) {
 			block();
 		} else {
-			String content = message.getContent();
+			String word = message.getContent();
+			String dictionaryName = message.getOntology();
 
 			ACLMessage reply = message.createReply();
 			reply.setPerformative(ACLMessage.INFORM);
@@ -172,8 +221,8 @@ class ItalianCyclicBehaviour extends CyclicBehaviour {
 			String response = "";
 
 			try {
-				response = agent.makeRequest("fd-eng-ita", content);
-			} catch (NumberFormatException ex) {
+				response = agent.makeRequest(dictionaryName, word);
+			} catch (Exception ex) {
 				response = ex.getMessage();
 			}
 
