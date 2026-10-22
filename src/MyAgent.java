@@ -8,8 +8,28 @@ import jade.domain.FIPAAgentManagement.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.HashMap;
 
 public class MyAgent extends Agent {
+
+	private HashMap<String, String> pendingRequests = new HashMap<String, String>();
+
+	private int requestCounter = 0;
+
+	public String rememberRequest(String word) {
+		requestCounter++;
+
+		String requestId = getLocalName() + "-request-" + requestCounter;
+
+		pendingRequests.put(requestId, word);
+
+		return requestId;
+	}
+
+	public String takeOriginalWord(String requestId) {
+		return pendingRequests.remove(requestId);
+	}
+
 	protected void setup() {
 		displayResponse("Hello, I am " + getAID().getLocalName());
 		addBehaviour(new MyCyclicBehaviour(this));
@@ -73,14 +93,29 @@ class MyCyclicBehaviour extends CyclicBehaviour {
 						forward.addReceiver(new AID(foundAgent, AID.ISLOCALNAME));
 						forward.setContent(content);
 						forward.setOntology(ontology);
+						String requestId = myAgent.rememberRequest(content);
+						forward.setReplyWith(requestId);
 						myAgent.send(forward);
 					}
 				} catch (FIPAException ex) {
 					ex.printStackTrace();
 					myAgent.displayResponse("Problem occured while searching for a service ...");
 				}
-			} else { // when it is an answer
-				myAgent.displayHtmlResponse(content);
+			} else {
+				String requestId = message.getInReplyTo();
+
+				String originalWord = myAgent.takeOriginalWord(requestId);
+
+				if (originalWord == null) {
+					originalWord = "Unknown request";
+				}
+
+				String completeResponse = "<h2>Original word: " +
+						originalWord +
+						"</h2>" +
+						content;
+
+				myAgent.displayHtmlResponse(completeResponse);
 			}
 		}
 	}
